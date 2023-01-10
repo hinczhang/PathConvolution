@@ -101,9 +101,17 @@ class Ui_MainWindow(QMainWindow):
         self.actionExport_TIFF.setText(_translate("MainWindow", "Export TIFF"))
 
     def __initUI__(self):
+        self.method_comboBox.addItems(["mean", "max", "min"])
+        self.kernel_comboBox.addItems(["3", "5", "7"])
+        self.visualWindow.setStyleSheet("QLabel{background-color:rgb(205, 205, 205);}")
         self.actionOpen_path.triggered.connect(self.__openPath__)
         self.actionOpen_raster.triggered.connect(self.__openRaster__)
+        self.actionClear.triggered.connect(self.__clear__)
         self.actionOpen_path.setEnabled(False)
+        self.actionClear.setEnabled(False)
+        self.run_Button.setEnabled(False)
+        self.actionExport_TIFF.setEnabled(False)
+        self.actionExport_Image.setEnabled(False)
         self.solver = PathConv()
 
     '''
@@ -119,7 +127,9 @@ class Ui_MainWindow(QMainWindow):
         self.solver.load_path(fileName)
         self.actionOpen_raster.setEnabled(False)
         self.actionOpen_path.setEnabled(False)
-        pixelMap = self.solver.visualize_raster((self.visualWindow.width().real, self.visualWindow.height().real))
+        self.actionClear.setEnabled(True)
+        self.run_Button.setEnabled(True)
+        pixelMap = self.solver.visualize_afterPath((self.visualWindow.width().real, self.visualWindow.height().real))
         self.visualWindow.setPixmap(pixelMap)
 
     def __openRaster__(self):
@@ -131,3 +141,18 @@ class Ui_MainWindow(QMainWindow):
         self.solver.load_raster(fileName)
         self.actionOpen_path.setEnabled(True)
         self.actionOpen_raster.setEnabled(False)
+        pixelMap = self.solver.visualize_raster((self.visualWindow.width().real, self.visualWindow.height().real))
+        self.visualWindow.setPixmap(pixelMap)
+
+    def __clear__(self):
+        self.solver = PathConv()
+        self.visualWindow.clear()
+        self.actionOpen_raster.setEnabled(True)
+        self.actionExport_TIFF.setEnabled(False)
+        self.actionExport_Image.setEnabled(False)
+        self.run_Button.setEnabled(False)
+        self.actionClear.setEnabled(False)
+
+    def __run__(self):
+        self.actionExport_TIFF.setEnabled(True)
+        self.actionExport_Image.setText(True)

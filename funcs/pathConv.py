@@ -35,19 +35,8 @@ class PathConv(object):
 
         self.routes = list(map(lambda p: funcs.interpolationTool.interpolationPoints(p, self.img.shape), self.routes))
         img = self.img.copy()
-        '''
-         experiment area
-        '''
-
-        print("Test value: ", list(map(lambda x: self.img[x[1], x[0]], self.routes[0])))
-        '''
-         end
-        '''
         img = self.path_convolution(img, 3, "mean")
-        print("Test value: ", list(map(lambda x: self.img[x[1], x[0]], self.routes[0])))
-        plt.imshow(img)
-        plt.colorbar()
-        plt.show()
+
 
     def load_raster(self, raster_file):
         self.raster = arcpy.sa.Raster(raster_file)
@@ -60,11 +49,26 @@ class PathConv(object):
     def visualize_raster(self, label_size):
         img = self.img.copy()
         img[img > 8848] = 0
-        # img = self.path_convolution(img, 5, "max")
         with np.errstate(all='ignore'):
             img = (255 * (img - img.min()).astype(np.float) / (img.max() - img.min()).astype(np.float)).astype(
                 img.dtype)
         img = img.reshape(img.shape[0], img.shape[1])
+        img = img.astype(np.uint8)
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        imgScr = self.__cvToQImage__(img)
+        pixel_src = QPixmap.fromImage(imgScr).scaled(label_size[0], label_size[1])
+        return pixel_src
+
+    def visualize_afterPath(self, label_size):
+        img = self.img.copy()
+        img[img > 8848] = 0
+        with np.errstate(all='ignore'):
+            img = (255 * (img - img.min()).astype(np.float) / (img.max() - img.min()).astype(np.float)).astype(
+                img.dtype)
+        img = img.reshape(img.shape[0], img.shape[1])
+        for route in self.routes:
+            for point in route:
+                img[point[1], point[0]] = 255
         img = img.astype(np.uint8)
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         imgScr = self.__cvToQImage__(img)
@@ -107,4 +111,5 @@ class PathConv(object):
                     img[route[i][1], route[i][0]] = np.max(values[i - half_kernel:i + half_kernel + 1])
                 elif method == "min":
                     img[route[i][1], route[i][0]] = np.min(values[i - half_kernel:i + half_kernel + 1])
+        self.output = img
         return img
