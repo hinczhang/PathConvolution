@@ -46,13 +46,17 @@ class PathConv(object):
         self.img = self.raster.read()
         self.img[self.img > 8848] = 0
 
-    def visualize_raster(self, label_size):
-        img = self.img.copy()
+    def __initial_visual__(self, img):
         img[img > 8848] = 0
         with np.errstate(all='ignore'):
             img = (255 * (img - img.min()).astype(np.float) / (img.max() - img.min()).astype(np.float)).astype(
                 img.dtype)
         img = img.reshape(img.shape[0], img.shape[1])
+        return img
+
+    def visualize_raster(self, label_size):
+        img = self.img.copy()
+        img = self.__initial_visual__(img)
         img = img.astype(np.uint8)
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         imgScr = self.__cvToQImage__(img)
@@ -61,11 +65,7 @@ class PathConv(object):
 
     def visualize_afterPath(self, label_size):
         img = self.img.copy()
-        img[img > 8848] = 0
-        with np.errstate(all='ignore'):
-            img = (255 * (img - img.min()).astype(np.float) / (img.max() - img.min()).astype(np.float)).astype(
-                img.dtype)
-        img = img.reshape(img.shape[0], img.shape[1])
+        img = self.__initial_visual__(img)
         for route in self.routes:
             for point in route:
                 img[point[1], point[0]] = 255
@@ -74,6 +74,16 @@ class PathConv(object):
         imgScr = self.__cvToQImage__(img)
         pixel_src = QPixmap.fromImage(imgScr).scaled(label_size[0], label_size[1])
         return pixel_src
+
+    def visualize_output(self, label_size):
+        img = self.output.copy()
+        img = self.__initial_visual__(img)
+        img = img.astype(np.uint8)
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        imgScr = self.__cvToQImage__(img)
+        pixel_src = QPixmap.fromImage(imgScr).scaled(label_size[0], label_size[1])
+        return pixel_src
+
 
     def __cvToQImage__(self, data):
         # 8-bits unsigned, NO. OF CHANNELS=1
