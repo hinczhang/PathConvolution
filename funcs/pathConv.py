@@ -17,9 +17,9 @@ class PathConv(object):
     def load_path(self, path_file):
         self.path_set = arcpy.FeatureSet(path_file)
         self.path_geo_info = json.loads(self.path_set.JSON)
-        print("Spatial Reference wkid: ", self.path_geo_info["spatialReference"]["wkid"])
+        # print("Spatial Reference wkid: ", self.path_geo_info["spatialReference"]["wkid"])
         self.sourceGeoRefCode = self.path_geo_info["spatialReference"]["wkid"]
-        print("Spatial Reference wkid: ", self.path_geo_info)
+        # print("Spatial Reference wkid: ", self.path_geo_info)
         self.__point_loading__()
 
     def __point_loading__(self):
@@ -42,7 +42,7 @@ class PathConv(object):
         self.raster = arcpy.sa.Raster(raster_file)
         self.extent = self.raster.extent
         self.standardGeoRefCode = self.raster.spatialReference.GCS.factoryCode
-        print("standard code: ", self.standardGeoRefCode)
+        # print("standard code: ", self.standardGeoRefCode)
         self.img = self.raster.read()
         self.img[self.img > 8848] = 0
 
@@ -112,8 +112,7 @@ class PathConv(object):
             route_length = len(route)
             assert route_length > kernel
             half_kernel = int(kernel / 2)
-            values = list(map(lambda x: self.img[x[1], x[0]], route))
-
+            values = list(map(lambda x: self.img[x[1], x[0]][0], route))
             for i in range(half_kernel, route_length - half_kernel):
                 if method == "mean":
                     img[route[i][1], route[i][0]] = np.mean(values[i - half_kernel:i + half_kernel + 1])
