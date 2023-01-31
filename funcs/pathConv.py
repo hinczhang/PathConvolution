@@ -34,8 +34,8 @@ class PathConv(object):
             self.routes.append(tmp_route)
 
         self.routes = list(map(lambda p: funcs.interpolationTool.interpolationPoints(p, self.img.shape), self.routes))
-        img = self.img.copy()
-        img = self.path_convolution(img, 3, "mean")
+        # img = self.img.copy()
+        # img = self.path_convolution(img, 3, "mean")
 
 
     def load_raster(self, raster_file):
@@ -44,6 +44,7 @@ class PathConv(object):
         self.standardGeoRefCode = self.raster.spatialReference.GCS.factoryCode
         # print("standard code: ", self.standardGeoRefCode)
         self.img = self.raster.read()
+        print("initial img size: ", self.img.shape)
         self.img[self.img > 8848] = 0
 
     def __initial_visual__(self, img):
@@ -76,7 +77,7 @@ class PathConv(object):
         return pixel_src
 
     def visualize_output(self, label_size):
-        img = self.output.copy()
+        img = self.output_img.copy()
         img = self.__initial_visual__(img)
         img = img.astype(np.uint8)
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
@@ -120,5 +121,9 @@ class PathConv(object):
                     img[route[i][1], route[i][0]] = np.max(values[i - half_kernel:i + half_kernel + 1])
                 elif method == "min":
                     img[route[i][1], route[i][0]] = np.min(values[i - half_kernel:i + half_kernel + 1])
-        self.output = img
+        self.output_img = img
+        self.output_tif = self.raster
+        # self.output_tif.write(img)
+        print(img.shape)
+        print(self.img.shape)
         return img
