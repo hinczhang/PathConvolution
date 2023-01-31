@@ -107,6 +107,9 @@ class Ui_MainWindow(QMainWindow):
         self.actionOpen_path.triggered.connect(self.__openPath__)
         self.actionOpen_raster.triggered.connect(self.__openRaster__)
         self.actionClear.triggered.connect(self.__clear__)
+        self.run_Button.clicked.connect(self.__run__)
+        self.actionExport_TIFF.triggered.connect(self.__export_TIFF__)
+        self.actionExport_Image.triggered.connect(self.__export_Image__)
         self.actionOpen_path.setEnabled(False)
         self.actionClear.setEnabled(False)
         self.run_Button.setEnabled(False)
@@ -155,4 +158,16 @@ class Ui_MainWindow(QMainWindow):
 
     def __run__(self):
         self.actionExport_TIFF.setEnabled(True)
-        self.actionExport_Image.setText(True)
+        self.actionExport_Image.setEnabled(True)
+        self.solver.path_convolution(self.solver.img, int(self.kernel_comboBox.currentText()), self.method_comboBox.currentText())
+        pixelMap = self.solver.visualize_output((self.visualWindow.width().real, self.visualWindow.height().real))
+        self.visualWindow.setPixmap(pixelMap)
+
+    def __export_TIFF__(self):
+        file_name, _ = QFileDialog.getSaveFileName(self, 'save file', './', "TIFF (*.tif)")
+        print(file_name)
+
+    def __export_Image__(self):
+        file_name, _ = QFileDialog.getSaveFileName(self, 'save file', './', "Image (*.png)")
+        print(file_name)
+
