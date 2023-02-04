@@ -1,6 +1,6 @@
 import arcpy
 import json
-import matplotlib.pyplot as plt
+import os
 from PyQt5.QtGui import QImage, QPixmap
 import numpy as np
 import cv2
@@ -13,6 +13,8 @@ class PathConv(object):
     def __init__(self):
         self.path_set = None
         self.raster = None
+        if not os.path.exists('./tmp'):
+            os.mkdir('./tmp')
 
     def load_path(self, path_file):
         self.path_set = arcpy.FeatureSet(path_file)
@@ -44,7 +46,6 @@ class PathConv(object):
         self.standardGeoRefCode = self.raster.spatialReference.GCS.factoryCode
         # print("standard code: ", self.standardGeoRefCode)
         self.img = self.raster.read()
-        print("initial img size: ", self.img.shape)
         self.img[self.img > 8848] = 0
 
     def __initial_visual__(self, img):
@@ -121,9 +122,14 @@ class PathConv(object):
                     img[route[i][1], route[i][0]] = np.max(values[i - half_kernel:i + half_kernel + 1])
                 elif method == "min":
                     img[route[i][1], route[i][0]] = np.min(values[i - half_kernel:i + half_kernel + 1])
-        self.output_img = img
-        self.output_tif = self.raster
-        # self.output_tif.write(img)
-        print(img.shape)
-        print(self.img.shape)
+        self.output_img = np.uint8(self.__initial_visual__(img))
+
+        X_cell_size = self.raster.meanCellWidth
+        Y_cell_size = self.raster.meanCellHeight
+        lower_left_corner = self.raster.extent.lowerLeft
+        self.output_tif = arcpy.NumPyArrayToRaster(img.reshape((img.shape[0], img.shape[1])), x_cell_size = X_cell_size, y_cell_size = Y_cell_size, lower_left_corner = lower_left_corner)
+        arcpy.management.DefineProjection(self.output_tif, self.raster.spatialReference)
         return img
+
+
+

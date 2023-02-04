@@ -37,7 +37,6 @@ def GenericBresenhamLine(x1, y1, x2, y2, shape):
     return points
 
 def interpolationPoints(points, shape):
-    print("Shape: ", shape)
     length = len(points)
     n_points = []
     for i in range(0, length - 1):
