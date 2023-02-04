@@ -13,8 +13,6 @@ class PathConv(object):
     def __init__(self):
         self.path_set = None
         self.raster = None
-        if not os.path.exists('./tmp'):
-            os.mkdir('./tmp')
 
     def load_path(self, path_file):
         self.path_set = arcpy.FeatureSet(path_file)

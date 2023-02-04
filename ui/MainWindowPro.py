@@ -91,6 +91,7 @@ class Ui_MainWindow(QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "PathConvolution"))
         MainWindow.setWindowIcon(QIcon('./ui/icon.ico'))
+
         self.groupBox.setTitle(_translate("MainWindow", "Settings"))
         self.method_label.setText(_translate("MainWindow", "Method:"))
         self.kernel_label.setText(_translate("MainWindow", "Kernel Size:"))
