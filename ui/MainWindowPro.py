@@ -131,7 +131,10 @@ class Ui_MainWindow(QMainWindow):
             QMessageBox.warning(self, "Warning", "No valid file selected.", QMessageBox.Yes | QMessageBox.No,
                                 QMessageBox.Yes)
             return
-        self.solver.load_path(fileName)
+        if not self.solver.load_path(fileName):
+            QMessageBox.warning(self, "Warning", "The shapefile is not polyline!", QMessageBox.Yes | QMessageBox.No,
+                                QMessageBox.Yes)
+            return
         self.actionOpen_raster.setEnabled(False)
         self.actionOpen_path.setEnabled(False)
         self.actionClear.setEnabled(True)
@@ -163,7 +166,8 @@ class Ui_MainWindow(QMainWindow):
     def __run__(self):
         self.actionExport_TIFF.setEnabled(True)
         self.actionExport_Image.setEnabled(True)
-        self.solver.path_convolution(self.solver.img, int(self.kernel_comboBox.currentText()), self.method_comboBox.currentText())
+        self.solver.path_convolution(self.solver.img, int(self.kernel_comboBox.currentText()),
+                                     self.method_comboBox.currentText())
         pixelMap = self.solver.visualize_output((self.visualWindow.width().real, self.visualWindow.height().real))
         self.visualWindow.setPixmap(pixelMap)
 
@@ -173,7 +177,14 @@ class Ui_MainWindow(QMainWindow):
             QMessageBox.warning(self, "Warning", "No valid file name selected.", QMessageBox.Yes | QMessageBox.No,
                                 QMessageBox.Yes)
             return
-        self.solver.output_tif.save(file_name)
+        # noinspection PyBroadException
+        try:
+            self.solver.export_tiff(file_name)
+            QMessageBox.about(self, "Info", "Export tiff successfully!")
+        except Exception as e:
+            QMessageBox.about(self, "Info", "Export tiff successfully!")
+            QMessageBox.critical(self, "Error", "Export error!", QMessageBox.Yes | QMessageBox.No,
+                                 QMessageBox.Yes)
 
     def __export_Image__(self):
         file_name, _ = QFileDialog.getSaveFileName(self, 'save file', './', "Image (*.png)")
@@ -181,6 +192,11 @@ class Ui_MainWindow(QMainWindow):
             QMessageBox.warning(self, "Warning", "No valid file name selected.", QMessageBox.Yes | QMessageBox.No,
                                 QMessageBox.Yes)
             return
-        output = Image.fromarray(self.solver.output_img)
-        output.save(file_name)
-
+        # noinspection PyBroadException
+        try:
+            self.solver.export_img(file_name)
+            QMessageBox.about(self, "Info", "Export tiff successfully!")
+        except Exception as e:
+            QMessageBox.about(self, "Info", "Export tiff successfully!")
+            QMessageBox.critical(self, "Error", "Export error!", QMessageBox.Yes | QMessageBox.No,
+                                 QMessageBox.Yes)

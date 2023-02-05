@@ -1,26 +1,31 @@
 import arcpy
 import json
-import os
 from PyQt5.QtGui import QImage, QPixmap
 import numpy as np
 import cv2
-
+from PIL import Image
 import funcs.geoTransformation
 import funcs.interpolationTool
 
 
 class PathConv(object):
     def __init__(self):
+        self.img = None
+        self.output_img = None
+        self.output_tif = None
         self.path_set = None
         self.raster = None
 
     def load_path(self, path_file):
         self.path_set = arcpy.FeatureSet(path_file)
         self.path_geo_info = json.loads(self.path_set.JSON)
+        if(self.path_geo_info["geometryType"] != 'esriGeometryPolyline'):
+            return False
         # print("Spatial Reference wkid: ", self.path_geo_info["spatialReference"]["wkid"])
         self.sourceGeoRefCode = self.path_geo_info["spatialReference"]["wkid"]
         # print("Spatial Reference wkid: ", self.path_geo_info)
         self.__point_loading__()
+        return True
 
     def __point_loading__(self):
         self.routes = []
@@ -36,7 +41,6 @@ class PathConv(object):
         self.routes = list(map(lambda p: funcs.interpolationTool.interpolationPoints(p, self.img.shape), self.routes))
         # img = self.img.copy()
         # img = self.path_convolution(img, 3, "mean")
-
 
     def load_raster(self, raster_file):
         self.raster = arcpy.sa.Raster(raster_file)
@@ -84,7 +88,6 @@ class PathConv(object):
         pixel_src = QPixmap.fromImage(imgScr).scaled(label_size[0], label_size[1])
         return pixel_src
 
-
     def __cvToQImage__(self, data):
         # 8-bits unsigned, NO. OF CHANNELS=1
         channels = None
@@ -125,9 +128,14 @@ class PathConv(object):
         X_cell_size = self.raster.meanCellWidth
         Y_cell_size = self.raster.meanCellHeight
         lower_left_corner = self.raster.extent.lowerLeft
-        self.output_tif = arcpy.NumPyArrayToRaster(img.reshape((img.shape[0], img.shape[1])), x_cell_size = X_cell_size, y_cell_size = Y_cell_size, lower_left_corner = lower_left_corner)
+        self.output_tif = arcpy.NumPyArrayToRaster(img.reshape((img.shape[0], img.shape[1])), x_cell_size=X_cell_size,
+                                                   y_cell_size=Y_cell_size, lower_left_corner=lower_left_corner)
         arcpy.management.DefineProjection(self.output_tif, self.raster.spatialReference)
         return img
 
+    def export_img(self, path):
+        output = Image.fromarray(self.output_img)
+        output.save(path)
 
-
+    def export_tiff(self, path):
+        self.output_tif.save(path)

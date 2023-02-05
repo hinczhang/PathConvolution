@@ -11,9 +11,11 @@ parser.add_argument('--format', type=str, default='image', help='export format',
 parser.add_argument('--path', type=str, help='export path', required=True)
 args = parser.parse_args()
 
+
 def report_error(e):
     print('The error type is: ', e.__class__.__name__)
-    print('The error detail is: ', e)
+    print('The error detail is: ', e.args)
+
 
 def main():
     print(args.vector, args.kernel)
@@ -21,7 +23,9 @@ def main():
 
     try:
         solver.load_raster(args.raster)
-        solver.load_path(args.vector)
+        if not solver.load_path(args.vector):
+            print("The shapefile is not polyline!")
+            return
     except Exception as e:
         report_error(e)
         return
@@ -31,8 +35,16 @@ def main():
     except Exception as e:
         report_error(e)
         return
-    # TODO: finish the export part, require to change the interface in the PathConv Class
 
+    try:
+        if args.format == "Image":
+            solver.export_img(args.path)
+        else:
+            solver.export_tiff(args.path)
+    except Exception as e:
+        report_error(e)
+        return
+    print("Carry out successfully.")
 
 
 if __name__ == '__main__':
