@@ -18,9 +18,16 @@ def report_error(e):
 
 
 def main():
-    print(args.vector, args.kernel)
+    """
+    check for the output
+    """
+    if args.format == "image" and args.path.split(".")[-1] not in ["png", "jpg"]:
+        print("Only allow png and jpg formats!")
+        return
+    if args.format == "tif" and args.path.split(".")[-1] != "tif":
+        print("Only allow .tif format!")
+        return
     solver = PathConv()
-
     try:
         solver.load_raster(args.raster)
         if not solver.load_path(args.vector):
@@ -37,7 +44,7 @@ def main():
         return
 
     try:
-        if args.format == "Image":
+        if args.format == "image":
             solver.export_img(args.path)
         else:
             solver.export_tiff(args.path)
