@@ -8,6 +8,9 @@ A QT application for path convolution. Contains the GUI end and the terminal end
 - opencv-python
 ### commercial
 - arcpy
+
+Please use your ArcGIS Pro Package Manager to create a new virtual environment.
+Then, install all the open-source packages there. 
 ## Terminal
 For the terminal part, the parameter could be: `--raster ./test_data/clip_raster.tif --vector ./test_data/test_road.shp --path ./a.tif`  
 These are compulsory parameters. For more, please view the `terminal.py`:  
