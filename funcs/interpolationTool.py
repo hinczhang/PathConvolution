@@ -1,6 +1,4 @@
-import numpy as np
-
-
+# Bresenham Generation
 def GenericBresenhamLine(x1, y1, x2, y2, shape):
     dx = abs(x2 - x1)
     dy = abs(y2 - y1)
@@ -8,12 +6,12 @@ def GenericBresenhamLine(x1, y1, x2, y2, shape):
     s1 = 1 if ((x2 - x1) > 0) else -1
     s2 = 1 if ((y2 - y1) > 0) else -1
     # keep the slope value with in [0,1]
-    boolInterChange = False
+    changeDirectFlag = False
     if dy > dx:
         tmp = dx
         dx = dy
         dy = tmp
-        boolInterChange = True
+        changeDirectFlag = True
     # initial error
     e = 2 * dy - dx
     x = x1
@@ -22,13 +20,13 @@ def GenericBresenhamLine(x1, y1, x2, y2, shape):
     for i in range(0, int(dx + 1)):
         if e >= 0:
             # make one unit change to the end with a smaller change
-            if boolInterChange:
+            if changeDirectFlag:
                 x += s1
             else:
                 y += s2
             e -= 2 * dx
         # make one unit change to the end with a larger change to smooth the line
-        if boolInterChange:
+        if changeDirectFlag:
             y += s2
         else:
             x += s1
@@ -37,7 +35,7 @@ def GenericBresenhamLine(x1, y1, x2, y2, shape):
         e += 2 * dy
     return points
 
-
+# Point interpolation function
 def interpolationPoints(points, shape):
     length = len(points)
     n_points = []

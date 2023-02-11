@@ -1,6 +1,7 @@
 from pyproj import CRS
 from pyproj import Transformer
 
+# Projection function
 def PointTransformation(x, y, sourceCode, destinationCode):
     sourceRef = CRS.from_epsg(sourceCode)
     dstRef = CRS.from_epsg(destinationCode)
@@ -8,6 +9,7 @@ def PointTransformation(x, y, sourceCode, destinationCode):
     n_x, n_y = transformer.transform(x, y)
     return [n_x, n_y]
 
+# To the local coordinate system
 def PointTOLocal(points, extent_left, extent_up, width, height):
     n_points = []
     for point in points:

@@ -1,6 +1,7 @@
 import argparse
 from funcs.pathConv import PathConv
 
+# Parameters configuration. Please input all necessary parameters.
 parser = argparse.ArgumentParser(description="Path convolution")
 parser.add_argument('--vector', type=str, help='input path vector', required=True)
 parser.add_argument('--raster', type=str, help='input raster', required=True)
@@ -12,11 +13,13 @@ parser.add_argument('--path', type=str, help='export path', required=True)
 args = parser.parse_args()
 
 
+# Error report function
 def report_error(e):
     print('The error type is: ', e.__class__.__name__)
     print('The error detail is: ', e.args)
 
 
+# Operation function
 def main():
     """
     check for the output
